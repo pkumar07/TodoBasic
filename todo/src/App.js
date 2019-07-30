@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Route } from 'react-router-dom';
 import React from 'react';
-import uuid from 'uuid';
+//import uuid from 'uuid';
+import axios from 'axios'
 import Todos from './components/Todos'
 import AddTodo from './components/AddTodo'
 import Header from './components/layout/Header'
@@ -10,24 +11,13 @@ import './App.css';
 
 class App extends React.Component {
   state = {
-    todos: [
-      {
-        id: uuid.v4(),
-        title: 'Take out the trash',
-        completed: true
-      },
-      {
-        id: uuid.v4(),
-        title: 'Cook dinner',
-        completed: false
-      },
-      {
-        id: uuid.v4(),
-        title: 'Wash clothes',
-        completed: false
-      }
+    todos: []
+  }
 
-    ]
+    //axios.get return promise
+  componentDidMount() {
+    axios.get('https://jsonplaceholder.typicode.com/todos?_limit=10')
+      .then(res => this.setState({ todos: res.data }))
   }
 
   markComplete = (id) => {
@@ -43,16 +33,25 @@ class App extends React.Component {
 
   /* ... spread operator copies everything and then use filter */
   delTodo = (id) => {
-    this.setState({ todos: [...this.state.todos.filter(todo => todo.id !== id)] });
+    axios.delete(`https://jsonplaceholder.typicode.com/todos/${id}`)
+      .then(res => this.setState({ todos: [...this.state.todos.filter(todo => todo.id !== id)] }));
   }
 
   addTodo = (title) => {
-    const newTodo = {
-      id: uuid.v4(),
+    // const newTodo = {
+    //   id: uuid.v4(),
+    //   title: title,
+    //   completed: false
+    // }
+    //post returns a axios.promise back, the response has the new data too res.data
+    axios.post('https://jsonplaceholder.typicode.com/todos', {
       title: title,
       completed: false
-    }
-    this.setState({ todos: [...this.state.todos, newTodo] });
+    })
+      .then(res => this.setState({ todos: [...this.state.todos, res.data] }))
+    
+
+    //Add post request to JSON placeholder
   }
 
   render() {
@@ -83,4 +82,5 @@ export default App;
 
 /**
  * If you are using BrowserRouter, then you have to wrap everything that the Component returns in it
+ * npm axios for http fetch 
  */
